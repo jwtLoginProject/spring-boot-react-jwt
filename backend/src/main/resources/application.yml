@@ -1,0 +1,50 @@
+server:
+  port: 8000
+  servlet:
+    context-path:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+      
+#logging:
+#    level:
+#      com.tam.threeam.mapper.UserMapper: debug
+
+  
+spring:
+#  mvc:
+#    view:
+#      prefix: /WEB-INF/views/
+#      suffix: .jsp
+      
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/threeam?useUnicode=yes&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Seoul
+    username: tam
+    password: 1234
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+security:
+  jwt:
+    token:
+      secret-key: 3amproject
+      expire-length: 60*60*1000
+
+
+#  app:
+#    jwtSecret: JWTSuperSecretKey
+#    jwtExpirationInMs: 604800000
+
+
+#  jwt:
+#    signing:
+#      key:
+#        secret=mySecret
+#    get.token.uri=/authenticate
+#    refresh.token.uri=/refresh
+#    http.request.header=Authorization
+#    token.expiration.in.seconds=604800
