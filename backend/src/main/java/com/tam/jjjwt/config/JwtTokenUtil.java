@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
  * @ 수정일       	수정자       수정내용
  * @ ———    		———— 	   —————————————
  * @ 2022/02/03		전예지			최초 작성
+ * @ 2022/02/04		전예지			토큰 생성 메서드 파라미터 변경
  */
 @Slf4j
 @Component
@@ -58,12 +59,12 @@ public class JwtTokenUtil implements Serializable{
 	}
 
 
-	public String generateToken(String userId, long expirationMinute) {
+	public String generateToken(UserDetails userDetails, long expirationMinute) {
 
 		String accessToken = "";
 
 		Map<String, Object> claims = new HashMap<>();
-		String subject = userId;
+		String subject = userDetails.getUsername();
 
 		accessToken = Jwts.builder()
 						.setClaims(claims)
