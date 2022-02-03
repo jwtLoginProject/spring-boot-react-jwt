@@ -21,7 +21,17 @@ import com.tam.jjjwt.service.UserService;
 
 
 
-
+/**
+ * @author 전예지
+ * @version 1.0
+ * @Description
+ * @Modification Information
+ * Created 2022/02/03
+ * @
+ * @ 수정일         수정자                   수정내용
+ * @ ———    ————    —————————————
+ * @ 2022/02/03		전예지			최초 작성
+ */
 @Controller
 public class UserController {
 	
@@ -58,11 +68,18 @@ public class UserController {
 
         accessToken = jwtTokenUtil.generateToken(user.getUserId() , 1);
         refreshToken = jwtTokenUtil.generateToken(user.getUserId() , 3);
+        Cookie accessCookie = new Cookie("accessCookie" , accessToken);
         Cookie refreshCookie = new Cookie("refreshToken" , refreshToken);
+        
+        accessCookie.setMaxAge(1 * 60);
+        response.addCookie(accessCookie);
+        
         refreshCookie.setMaxAge(3 * 60);
         response.addCookie(refreshCookie);
+        userService.updateRefreshToken(refreshToken, user.getUserId());
 
-        return accessToken;
+        // TODO 리턴값 변경
+        return "success";
     }
 
     @PostMapping("/auth/refreshToken")

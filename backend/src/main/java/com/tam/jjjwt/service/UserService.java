@@ -14,7 +14,17 @@ import com.tam.jjjwt.response.ExceptionEnum;
 import com.tam.jjjwt.response.exception.ApiException;
 import com.tam.jjjwt.util.CommonUtils;
 
-
+/**
+ * @author 전예지
+ * @version 1.0
+ * @Description
+ * @Modification Information
+ * Created 2022/02/03
+ * @
+ * @ 수정일         수정자                   수정내용
+ * @ ———    ————    —————————————
+ * @ 2022/02/03		전예지			최초 작성
+ */
 @Service
 public class UserService {
 	
@@ -59,13 +69,11 @@ public class UserService {
     };
 
     
-//    // TODO refresh token 저장
-//    @Transactional
-//    public int updateRefreshToken() {
-//    	return userMapper.updateRefreshToken();
-//    }
-    
-    
+    // TODO refresh token 저장
+    @Transactional
+    public int updateRefreshToken(String refreshToken, String userId) {
+    	return userMapper.updateRefreshToken(refreshToken, userId);
+    }
 
 
     // userId로 유저 고유값 찾기
@@ -97,5 +105,6 @@ public class UserService {
         resultMap.put("messageType", count == 0 ? "Success" : "Failure");
         resultMap.put("message", count == 0 ? "사용하실 수 있는 아이디입니다." : userId+"은 이미 있는 아이디입니다.");
         return resultMap;
-    };
+    }
+
 }
