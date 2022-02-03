@@ -4,6 +4,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tam.jjjwt.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.tam.jjjwt.config.JwtTokenUtil;
-import com.tam.jjjwt.model.JwtRequest;
 import com.tam.jjjwt.response.exception.InvalidRefreshTokenException;
 import com.tam.jjjwt.service.UserService;
 
@@ -39,14 +39,14 @@ public class UserController {
     
     
     @PostMapping("/auth/signInProc")
-    public String signIn(@RequestBody JwtRequest jwtRequest , HttpServletResponse response) throws Exception {
+    public String signIn(@RequestBody User user , HttpServletResponse response) throws Exception {
 
-        System.out.println(jwtRequest);
-        System.out.println(jwtRequest.getUserId());
-        System.out.println(jwtRequest.getPassword());
+        System.out.println(user);
+        System.out.println(user.getUserId());
+        System.out.println(user.getPassword());
 
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(jwtRequest.getUserId(), jwtRequest.getPassword()));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserId(), user.getPassword()));
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
@@ -56,8 +56,8 @@ public class UserController {
         String accessToken = "";
         String refreshToken = "";
 
-        accessToken = jwtTokenUtil.generateToken(jwtRequest.getUserId() , 1);
-        refreshToken = jwtTokenUtil.generateToken(jwtRequest.getUserId() , 3);
+        accessToken = jwtTokenUtil.generateToken(user.getUserId() , 1);
+        refreshToken = jwtTokenUtil.generateToken(user.getUserId() , 3);
         Cookie refreshCookie = new Cookie("refreshToken" , refreshToken);
         refreshCookie.setMaxAge(3 * 60);
         response.addCookie(refreshCookie);
@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @PostMapping("/auth/refreshToken")
-    public String refreshToken(@RequestBody JwtRequest jwtRequest , HttpServletRequest request) throws Exception{
+    public String refreshToken(@RequestBody User user , HttpServletRequest request) throws Exception{
 
         String accessToken = "";
         String refreshToken = "";
@@ -77,7 +77,7 @@ public class UserController {
                 if(cookie.getName().equals("refreshToken")) {
                     refreshToken = cookie.getValue();
                     if(jwtTokenUtil.checkClaim(refreshToken)) {
-                        accessToken = jwtTokenUtil.generateToken(jwtRequest.getUserId() , 1);
+                        accessToken = jwtTokenUtil.generateToken(user.getUserId() , 1);
                     }else {
                         throw new InvalidRefreshTokenException();
                     }
