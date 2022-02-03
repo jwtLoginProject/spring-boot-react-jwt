@@ -12,13 +12,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.tam.jjjwt.config.JwtTokenUtil;
 import com.tam.jjjwt.response.exception.InvalidRefreshTokenException;
 import com.tam.jjjwt.service.UserService;
-
 
 
 /**
@@ -46,6 +44,24 @@ public class UserController {
 
     @Value("${security.jwt.token.secret-key}")
     private String secretKey;
+
+
+    // 회원 가입 요청
+    @ResponseBody
+    @PostMapping("/auth/signUpProc")
+    public String signUp(@RequestBody User user) {
+        userService.join(user);
+
+        return "Success";
+    }
+
+
+    // 로그인 화면 조회
+    @GetMapping("/auth/signInForm")
+    public String signInForm() {
+        return "user/singInForm";
+
+    }
     
     
     @PostMapping("/auth/signInProc")
