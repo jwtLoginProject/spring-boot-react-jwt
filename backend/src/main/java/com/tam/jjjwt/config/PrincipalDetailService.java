@@ -1,10 +1,10 @@
 package com.tam.jjjwt.config;
 
 import com.tam.jjjwt.mapper.UserMapper;
-import com.tam.threeam.mapper.UserMapper;
-import com.tam.threeam.model.User;
+import com.tam.jjjwt.model.User;
+import com.tam.jjjwt.mapper.UserMapper;
+import com.tam.jjjwt.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

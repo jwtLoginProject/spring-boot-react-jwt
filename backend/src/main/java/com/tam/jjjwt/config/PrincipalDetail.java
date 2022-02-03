@@ -1,10 +1,9 @@
 package com.tam.jjjwt.config;
 
-import com.tam.threeam.model.User;
+import com.tam.jjjwt.model.User;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;

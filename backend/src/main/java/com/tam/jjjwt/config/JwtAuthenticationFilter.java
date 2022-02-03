@@ -1,6 +1,6 @@
 package com.tam.jjjwt.config;
 
-import com.tam.threeam.config.auth.PrincipalDetailService;
+import com.tam.jjjwt.config.PrincipalDetailService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
