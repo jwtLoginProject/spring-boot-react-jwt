@@ -82,7 +82,9 @@ public class UserController {
         System.out.println(user.getPassword());
 
         try {
+        	System.out.println("BEFORE authentication");
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserId(), user.getPassword()));
+            System.out.println("authentication OK");
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
@@ -90,7 +92,7 @@ public class UserController {
         }
 
         final UserDetails userDetails = principalDetailService.loadUserByUsername(user.getUserId());
-        
+        System.out.println(userDetails);
         String accessToken = "";
         String refreshToken = "";
 

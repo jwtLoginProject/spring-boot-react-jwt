@@ -91,7 +91,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 			throws ServletException, IOException {
 
 		final String requestTokenHeader = request.getHeader("Authorization");
-
+		System.out.println(requestTokenHeader);
 		String userId = null;
 		String jwtToken = null;
 
@@ -106,13 +106,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 			}
 		}
 //		else {
-			System.out.println("JWT Token does not begin with Bearer String");
+//			System.out.println("JWT Token does not begin with Bearer String");
 //
 
 //		}
 
 		// Once we get the token validate it.
-		if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+		if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {			//userId != null &&
 
 			System.out.println("JWT Token must be generated & User must be authenticated");
 
