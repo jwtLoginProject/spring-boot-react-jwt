@@ -2,20 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.tam.jjjwt.mapper.UserMapper">
 
+	<resultMap type="com.tam.jjjwt.model.User" id="userMap">
+		<result property="userId" column="user_id"></result>
+		<result property="refreshToken" column="refresh_token"></result>
+	</resultMap>
+	
    <insert id="join" parameterType="com.tam.jjjwt.model.User" useGeneratedKeys="true" keyProperty="id">
       <!-- INSERT INTO user SET user_id=#{userId}, password=#{password} -->
       INSERT INTO user(user_id, password, refresh_token) VALUES (#{userId}, #{password}, '')
    </insert>
 
-	<select id="findUserById" parameterType="int" resultType="com.tam.jjjwt.model.User">
+	<select id="findUserById" parameterType="int" resultType="com.tam.jjjwt.model.User" resultMap="userMap">
 		SELECT * FROM user WHERE id=#{id}
 	</select>
 
-	<select id="findUserByUserId" parameterType="String" resultType="com.tam.jjjwt.model.User">
+	<select id="findUserByUserId" parameterType="String" resultType="com.tam.jjjwt.model.User" resultMap="userMap">
 		SELECT * FROM user WHERE user_id=#{userId}
 	</select>
 	
-	<select id="findPkByUserId" parameterType="String" resultType="int">
+	<select id="findPkByUserId" parameterType="String" resultType="int" resultMap="userMap">
 		SELECT id FROM user WHERE user_id=#{userId}
 	</select>
 
