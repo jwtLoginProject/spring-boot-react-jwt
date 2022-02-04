@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
 
-const Join = () => {
+const Join = ({authService}) => {
     const [formData, setFormData] = useState({
-        id: '',
+        userId: '',
         password: ''
     });
 
-    const handleJoin = (formData) => {
-        
+    const handleJoin = (user) => {
+        authService.signUp(user);
     }
+
     return (
         <>
         <form>
             <input type="text" 
             name="id"
             placeholder="id" 
-            value={formData.id}
-            onChange={(e)=>{setFormData(oldData => ({...oldData, id:e.target.value}))}}
+            value={formData.userId}
+            onChange={(e)=>{setFormData(oldData => ({...oldData, userId:e.target.value}))}}
             />
             <input type="password" 
             name="password"

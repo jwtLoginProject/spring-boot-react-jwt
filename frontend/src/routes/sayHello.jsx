@@ -1,9 +1,14 @@
 import React from 'react';
 
-const SayHello = () => {
+const SayHello = ({authService}) => {
+    const currentUser = authService.getCurrentUser();
+
     return (
         <>
-        <h1>Hello, </h1>
+        {currentUser ?
+            <h1>Hello, {currentUser}</h1>
+        :   window.location.href = '/'
+        }
         </>
     );
 }
