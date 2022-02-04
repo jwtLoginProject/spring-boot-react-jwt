@@ -94,14 +94,17 @@ public class UserController {
         String accessToken = "";
         String refreshToken = "";
 
-        accessToken = jwtTokenUtil.generateToken(userDetails, 60); // 유효 기간 : 1시간
-        refreshToken = jwtTokenUtil.generateToken(userDetails, 60 * 24 * 7); // 유효 기간 : 7일
+        accessToken = jwtTokenUtil.generateToken(userDetails, 1); // 유효 기간 : 1시간
+        System.out.println(accessToken);
+        refreshToken = jwtTokenUtil.generateToken(userDetails, 24 * 7); // 유효 기간 : 7일
+        System.out.println(refreshToken);
+
         Cookie accessCookie = new Cookie("accessCookie", accessToken);
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-        
         accessCookie.setMaxAge(60 * 60);
         response.addCookie(accessCookie);
-        
+
+
+        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
         refreshCookie.setMaxAge(60 * 60 * 24 * 7);
         response.addCookie(refreshCookie);
         userService.updateRefreshToken(refreshToken, user.getUserId());

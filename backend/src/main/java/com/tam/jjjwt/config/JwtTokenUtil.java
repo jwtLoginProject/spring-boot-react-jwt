@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 public class JwtTokenUtil implements Serializable{
 
 	private static final long serialVersionUID = -3087900894366041265L;
-	public static final long tokenValidTime = 60 * 1000;
+	public static final long tokenValidTime = 60 * 60 * 1000;
 
 	@Value("${security.jwt.token.secret-key}")
 	private String secretKey;
@@ -64,7 +64,7 @@ public class JwtTokenUtil implements Serializable{
 	}
 
 
-	public String generateToken(UserDetails userDetails, long expirationMinute) {
+	public String generateToken(UserDetails userDetails, long expirationHour) {
 
 		String accessToken = "";
 
@@ -75,7 +75,7 @@ public class JwtTokenUtil implements Serializable{
 						.setClaims(claims)
 						.setSubject(subject)
 						.setIssuedAt(new Date(System.currentTimeMillis()))
-						.setExpiration(new Date(System.currentTimeMillis() + tokenValidTime * expirationMinute))
+						.setExpiration(new Date(System.currentTimeMillis() + tokenValidTime * expirationHour))
 						.signWith(SignatureAlgorithm.HS512, secretKey).compact();
 
 
