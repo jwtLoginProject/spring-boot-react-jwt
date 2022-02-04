@@ -1,31 +1,32 @@
 import axios from "axios";
 import { customAxios } from "./customAxios";
-import { Cookies } from 'react-cookie';
+import { Cookies, withCookies } from 'react-cookie';
 import jwt_decode from 'jwt-decode';
 
 const cookies = new Cookies;
 
-export default class AuthService {
+class AuthService {
     constructor() {
-        this.accessToken = '';
-        this.refreshToken = '';
+        this.accessToken = cookies.get('accessToken');
+        this.refreshToken = cookies.get('refreshToken');
     }
 
     signIn = async (user) => {
         const tokenSet = await customAxios.post('/auth/signInProc', JSON.stringify(user));
-        // 쿠키 받아와서 프론트 쿠키에 저장
         if(tokenSet) {
-            let access = cookies.set('accessToken');
-            let refresh = cookies.set('refreshToken');
+            // accessToken 만료 기간 검증, 갱신
+            this.refreshTokensBeforeExpire(cookies.get('accessToken'), user);
+            
+            // 쿠키 받아와서 프론트 쿠키에 저장
+            cookies.set('accessToken');
+            cookies.set('refreshToken');
+
+            // 로그인 user 아이디 웹스토리지 저장
             localStorage.setItem('AuthenticatedUser', user.userId);
         }
 
-        // accessToken 만료 기간 검증, 갱신
-        this.refreshTokensBeforeExpire(cookies.get('accessToken'));
-        
         // 쿠키에 저장된 토큰을 헤더에 저장
         axios.interceptors.request.use(config => {
-            this.accessToken = cookies.get('accessToken');
             if (this.accessToken !== '') {
                 config.headers['accessToken'] = 'Bearer ' + this.accessToken;
             }
@@ -47,13 +48,22 @@ export default class AuthService {
         return this.accessToken !== '' && localStorage.getItem('AuthenticatedUser');
     }
 
-    refreshTokensBeforeExpire = () => {
-        const { exp } = jwt_decode(this.accessToken);
+    refreshTokensBeforeExpire = async (token, user) => {
+        const { exp } = jwt_decode(token);
         if(exp < 1000 * 60) {
-            const tokens = await customAxios.post('', JSON.stringify());
+            // accessToken 만료 1분 전, 헤더에 refresToken 과 함께 보내기
+            axios.interceptors.request.use(config => {
+                config.headers['accessToken'] = 'Bearer ' + this.accessToken;
+                config.headers['refreshToken'] = 'Bearer ' + this.refreshToken;
+                return config;
+            });
+
             // 토큰 갱신
-            let access = cookies.set('accessToken');
-            let refresh = cookies.set('refreshToken');
+            const newTokenSet = await customAxios.post('/', JSON.stringify(user));
+            this.accessToken = cookies.get('accessToken');
+            this.refreshToken = cookies.get('refreshToken');
         }
     }
 }
+
+export default withCookies(AuthService);
