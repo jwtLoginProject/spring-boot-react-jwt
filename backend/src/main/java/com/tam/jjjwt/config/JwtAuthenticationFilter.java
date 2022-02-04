@@ -112,7 +112,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 //		}
 
 		// Once we get the token validate it.
-		if (SecurityContextHolder.getContext().getAuthentication() == null) {			//userId != null &&
+		if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
 			System.out.println("JWT Token must be generated & User must be authenticated");
 
