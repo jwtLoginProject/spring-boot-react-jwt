@@ -8,7 +8,10 @@ import java.util.function.Function;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +36,8 @@ public class JwtTokenUtil implements Serializable{
 	@Value("${security.jwt.token.secret-key}")
 	private String secretKey;
 
+	@Autowired
+	private PrincipalDetailService principalDetailService;
 
 
 	public String getUserIdFromToken(String token) {
@@ -75,6 +80,13 @@ public class JwtTokenUtil implements Serializable{
 
 		return accessToken;
 
+	}
+
+
+	// 인증 성공시 SecurityContextHolder에 저장할 Authentication 객체 생성
+	public Authentication getAuthentication(String token) {
+		UserDetails userDetails = principalDetailService.loadUserByUsername(this.getUserIdFromToken(token));
+		return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 	}
 
 
