@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-const Login = ({authService}) => {
-    const currentUser = authService.getCurrentUser();
+const Login = ({getCurrentUser, signIn}) => {
+    const currentUser = getCurrentUser();
 
     const [formData, setFormData] = useState({
         userId: '',
@@ -9,7 +9,7 @@ const Login = ({authService}) => {
     });
 
     const handleLogin = (user) => {
-        authService.signIn(user);
+        signIn(user);
     }
 
     return (

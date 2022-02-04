@@ -1,16 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Home = ({authService}) => {
-    const currentUser = authService.getCurrentUser();
-
+const Home = ({getCurrentUser, signOut}) => {
+    const currentUser = getCurrentUser();
+    
     return (
         <>
         <Link to='/join'>        
             <button>Join</button>
         </Link>
         {currentUser ? 
-        <button onClick={authService.signOut()}>Logout</button>
+        <button onClick={()=>signOut()}>Logout</button>
         :
         <Link to='/login'>
             <button>Login</button>

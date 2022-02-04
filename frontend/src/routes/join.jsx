@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
-const Join = ({authService}) => {
+const Join = ({signUp}) => {
     const [formData, setFormData] = useState({
         userId: '',
         password: ''
     });
 
     const handleJoin = (user) => {
-        authService.signUp(user);
+        signUp(user);
     }
 
     return (

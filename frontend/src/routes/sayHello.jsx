@@ -1,7 +1,7 @@
 import React from 'react';
 
-const SayHello = ({authService}) => {
-    const currentUser = authService.getCurrentUser();
+const SayHello = ({getCurrentUser}) => {
+    const currentUser = getCurrentUser();
 
     return (
         <>
