@@ -17,6 +17,7 @@ import com.tam.jjjwt.model.User;
  * @ 수정일         수정자                   수정내용
  * @ ———    ————    —————————————
  * @ 2022/02/03		전예지			최초 작성
+ * @ 2022/02/04		전예지			회원가입 시 refresh token 공백 삽입
  */
 @Mapper
 public interface UserMapper {

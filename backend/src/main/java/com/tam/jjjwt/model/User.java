@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
  * @ 수정일         수정자                   수정내용
  * @ ———    ————    —————————————
  * @ 2022/02/03		전예지			최초 작성
+ * @ 2022/02/04		전예지			refreshToken property 추가
  */
 @Data
 @AllArgsConstructor
@@ -27,4 +28,6 @@ public class User {
     private String userId;
 
     private String password;
+    
+    private String refreshToken;
 }

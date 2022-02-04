@@ -27,7 +27,8 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
  * @
  * @ 수정일       	수정자        수정내용
  * @ ———   			————    	—————————————
- * @ 2021/02/03     이동은        최초 작성
+ * @ 2021/02/03     	이동은        	최초 작성
+ * @ 2022/02/04		전예지			addFilterBefore 주석 해제
  */
 @Configuration
 @EnableWebSecurity
@@ -75,10 +76,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 				.defaultSuccessUrl("/")
 			.and()
 				.exceptionHandling()
-					.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+				.authenticationEntryPoint(jwtAuthenticationEntryPoint)
 			.and()
 				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 	}

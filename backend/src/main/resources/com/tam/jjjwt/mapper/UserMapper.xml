@@ -3,18 +3,19 @@
 <mapper namespace="com.tam.jjjwt.mapper.UserMapper">
 
    <insert id="join" parameterType="com.tam.jjjwt.model.User" useGeneratedKeys="true" keyProperty="id">
-      INSERT INTO user SET user_id=#{userId}, password=#{password}
+      <!-- INSERT INTO user SET user_id=#{userId}, password=#{password} -->
+      INSERT INTO user(user_id, password, refresh_token) VALUES (#{userId}, #{password}, '')
    </insert>
 
-	<select id="findUserById" parameterType="int" resultType="com.tam.jjjwt.model.User" resultMap="UserMap">
+	<select id="findUserById" parameterType="int" resultType="com.tam.jjjwt.model.User">
 		SELECT * FROM user WHERE id=#{id}
 	</select>
 
-	<select id="findUserByUserId" parameterType="String" resultType="com.tam.jjjwt.model.User" resultMap="UserMap">
+	<select id="findUserByUserId" parameterType="String" resultType="com.tam.jjjwt.model.User">
 		SELECT * FROM user WHERE user_id=#{userId}
 	</select>
 	
-	<select id="findPkByUserId" parameterType="String" resultType="int" resultMap="UserMap">
+	<select id="findPkByUserId" parameterType="String" resultType="int">
 		SELECT id FROM user WHERE user_id=#{userId}
 	</select>
 
