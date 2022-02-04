@@ -97,6 +97,7 @@ public class UserController {
         accessToken = jwtTokenUtil.generateToken(userDetails, 60); // 유효 기간 : 1시간
         refreshToken = jwtTokenUtil.generateToken(userDetails, 60 * 24 * 7); // 유효 기간 : 7일
         Cookie accessCookie = new Cookie("accessCookie", accessToken);
+        System.out.println(accessToken);
         Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
         
         accessCookie.setMaxAge(60 * 60);
@@ -107,7 +108,7 @@ public class UserController {
         userService.updateRefreshToken(refreshToken, user.getUserId());
 
         // TODO 리턴값 변경
-        return "success";
+        return accessToken;
     }
 
     
@@ -119,6 +120,8 @@ public class UserController {
         String accessToken = "";
         String refreshToken = "";
 
+        // TODO refreshToken DB와 비교 로직 추가
+        
         Cookie [] cookies = request.getCookies();
         if(cookies != null && cookies.length > 0 ) {
             for(Cookie cookie : cookies) {
