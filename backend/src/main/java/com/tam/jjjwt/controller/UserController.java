@@ -2,6 +2,8 @@ package com.tam.jjjwt.controller;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -75,7 +77,7 @@ public class UserController {
     
     @ResponseBody
     @PostMapping("/auth/signInProc")
-    public String signIn(@RequestBody User user , HttpServletResponse response) throws Exception {
+    public Map<String, String> signIn(@RequestBody User user , HttpServletResponse response) throws Exception {
 
         System.out.println(user);
         System.out.println(user.getUserId());
@@ -100,10 +102,15 @@ public class UserController {
         String accessToken = "";
         String refreshToken = "";
 
+        Map<String, String> resultMap = new HashMap<>();
+
         accessToken = jwtTokenUtil.generateToken(userDetails, 1); // 유효 기간 : 1시간
         System.out.println(accessToken);
         refreshToken = jwtTokenUtil.generateToken(userDetails, 24 * 7); // 유효 기간 : 7일
         System.out.println(refreshToken);
+
+        resultMap.put("AccessToken",accessToken);
+        resultMap.put("RefreshToken",refreshToken);
 
         Cookie accessCookie = new Cookie("accessCookie", accessToken);
         accessCookie.setMaxAge(60 * 60);
@@ -113,12 +120,14 @@ public class UserController {
         Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
         refreshCookie.setMaxAge(60 * 60 * 24 * 7);
         response.addCookie(refreshCookie);
-        System.out.println("리프레시 토큰 업데이트 전");
         userService.updateRefreshToken(refreshToken, user.getUserId());
-        System.out.println("리프레시 토큰 업데이트 후");
 
-        // TODO 리턴값 변경
-        return "success";
+
+        //        UserResponseDto.TokenInfo tokenInfo = jwtTokenUtil.generateToken(userDetails);
+//        tokenInfo.userId = user.getUserId();
+
+        // TODO ResponseDto 적용
+        return resultMap;
     }
     
     @ResponseBody

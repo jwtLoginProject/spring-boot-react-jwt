@@ -22,16 +22,16 @@ public class BaseResponseDTO implements Serializable {
     private String messageType;
     private Object data;
 
-    public static com.tam.jjjwt.response.BaseResponseDTO success(UserResponseDto.TokenInfo tokenInfo) {
-        return com.tam.jjjwt.response.BaseResponseDTO.builder()
+    public static BaseResponseDTO success(UserResponseDto.TokenInfo tokenInfo) {
+        return BaseResponseDTO.builder()
                 .messageType(SUCCESS)
                 .data(tokenInfo)
                 .code("SC001")
                 .build();
     }
 
-    public static com.tam.jjjwt.response.BaseResponseDTO fail(String message) {
-        return com.tam.jjjwt.response.BaseResponseDTO.builder()
+    public static BaseResponseDTO fail(String message) {
+        return BaseResponseDTO.builder()
                 .message(message)
                 .messageType(FAIL)
                 .code("ER001")
