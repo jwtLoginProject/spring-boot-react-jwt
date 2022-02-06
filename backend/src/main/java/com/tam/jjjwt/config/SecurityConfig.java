@@ -27,8 +27,9 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
  * @
  * @ 수정일       	수정자        수정내용
  * @ ———   			————    	—————————————
- * @ 2021/02/03     이동은        	최초 작성
+ * @ 2021/02/03     	이동은        	최초 작성
  * @ 2022/02/04		전예지			addFilterBefore 주석 해제
+ * @ 2022/02/06		전예지			JwtAuthenticationFilter 빈 등록
  */
 @Configuration
 @EnableWebSecurity
@@ -55,6 +56,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		return super.authenticationManagerBean();
 	}
 
+	@Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilterBean() {
+        return new JwtAuthenticationFilter();
+    }
+	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(principalDetailService).passwordEncoder(encoderPwd());

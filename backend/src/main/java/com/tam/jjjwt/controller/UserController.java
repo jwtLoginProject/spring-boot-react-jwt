@@ -73,7 +73,7 @@ public class UserController {
 
     }
     
-    
+    @ResponseBody
     @PostMapping("/auth/signInProc")
     public String signIn(@RequestBody User user , HttpServletResponse response) throws Exception {
 
@@ -81,9 +81,13 @@ public class UserController {
         System.out.println(user.getUserId());
         System.out.println(user.getPassword());
 
+        
         try {
         	System.out.println("BEFORE authentication");
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserId(), user.getPassword()));
+        	UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUserId(), user.getPassword());
+        	System.out.println(token);
+        	authenticationManager.authenticate(token);
+//            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserId(), user.getPassword()));
             System.out.println("authentication OK");
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
@@ -109,13 +113,15 @@ public class UserController {
         Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
         refreshCookie.setMaxAge(60 * 60 * 24 * 7);
         response.addCookie(refreshCookie);
+        System.out.println("리프레시 토큰 업데이트 전");
         userService.updateRefreshToken(refreshToken, user.getUserId());
+        System.out.println("리프레시 토큰 업데이트 후");
 
         // TODO 리턴값 변경
-        return accessToken;
+        return "success";
     }
-
     
+    @ResponseBody
     @PostMapping("/auth/refreshToken")
     public String refreshToken(@RequestBody User user , HttpServletRequest request, HttpServletResponse response) throws Exception{
 
