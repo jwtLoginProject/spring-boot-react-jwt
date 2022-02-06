@@ -10,9 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tam.jjjwt.mapper.UserMapper;
 import com.tam.jjjwt.model.User;
-import com.tam.jjjwt.response.ExceptionEnum;
 import com.tam.jjjwt.response.exception.ApiException;
-import com.tam.jjjwt.util.CommonUtils;
 
 /**
  * @author 전예지
