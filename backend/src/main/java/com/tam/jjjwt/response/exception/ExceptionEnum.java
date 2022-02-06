@@ -1,4 +1,4 @@
-package com.tam.jjjwt.response;
+package com.tam.jjjwt.response.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

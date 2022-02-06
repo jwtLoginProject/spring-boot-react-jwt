@@ -1,7 +1,5 @@
 package com.tam.jjjwt.response.exception;
 
-import com.tam.jjjwt.response.ExceptionEnum;
-
 import lombok.Getter;
 
 @Getter
