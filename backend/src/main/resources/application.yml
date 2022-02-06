@@ -6,21 +6,23 @@ server:
       charset: UTF-8
       enabled: true
       force: true
-      
+
 #logging:
 #    level:
 #      com.tam.threeam.mapper.UserMapper: debug
 
-  
+
 spring:
 #  mvc:
 #    view:
 #      prefix: /WEB-INF/views/
 #      suffix: .jsp
-      
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/threeam?useUnicode=yes&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Seoul
+#    username: root
+#    password: dlgjsrl0215
     username: tam
     password: 1234
 

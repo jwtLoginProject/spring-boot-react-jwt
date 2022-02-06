@@ -8,7 +8,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.Serializable;
 
 /**
  * @author 이동은
@@ -22,21 +21,13 @@ import java.io.Serializable;
  * @ 2021/02/03     이동은        최초 작성
  */
 @Component
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Serializable{
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-	private static final long serialVersionUID = -7773895444441291311L;
-	
-	/*
-	 * @ 인증 필요한 resource 접근 시 && 예외 발생 시 호출
-	 */
-	@Override
-	public void commence(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException authException) throws IOException, ServletException {
-		response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized. You need to provide Jwt Token to access this source");
-		
-	}
-
-	
-	
-	
+    @Override
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException)
+            throws IOException, ServletException {
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    }
 }

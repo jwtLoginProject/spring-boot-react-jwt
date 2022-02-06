@@ -1,28 +1,15 @@
 package com.tam.jjjwt.controller;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.tam.jjjwt.dto.BaseResponseDTO;
 import com.tam.jjjwt.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
 
-import com.tam.jjjwt.config.JwtTokenUtil;
-import com.tam.jjjwt.config.PrincipalDetail;
-import com.tam.jjjwt.config.PrincipalDetailService;
-import com.tam.jjjwt.response.exception.InvalidRefreshTokenException;
 import com.tam.jjjwt.service.UserService;
+import org.springframework.web.bind.annotation.*;
 
 
 /**
@@ -37,189 +24,43 @@ import com.tam.jjjwt.service.UserService;
  * @ 2022/02/03		전예지			최초 작성
  * @ 2022/02/04		전예지			refresh token 재발급, 토큰 생성 파라미터 변경
  */
+@Slf4j
 @Controller
 public class UserController {
-	
-	@Autowired
+
+    @Autowired
     private UserService userService;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    // todo
+    // 1. db 설계 오류
+    //    user 테이블의 user_id가 유니크하지 않음 -> 반복해서 동일한 아이디로 회원가입이 가능한 오류 발생
+    // 2. 비즈니스 로직은 서비스에서 처리하도록 변경
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
-    
-    @Autowired
-    private PrincipalDetailService principalDetailService;
-
-    @Value("${security.jwt.token.secret-key}")
-    private String secretKey;
-
-
-    // 회원 가입 요청
-    @ResponseBody
     @PostMapping("/auth/signUpProc")
-    public String signUp(@RequestBody User user) {
-        userService.join(user);
-
-        return "Success";
+    public ResponseEntity<?> signUp(@RequestBody User user) {
+        return ResponseEntity.ok(userService.signUp(user));
     }
 
-
-    // 로그인 화면 조회
-    @GetMapping("/auth/signInForm")
-    public String signInForm() {
-        return "user/singInForm";
-
-    }
-    
-    @ResponseBody
     @PostMapping("/auth/signInProc")
-    public String signIn(@RequestBody User user , HttpServletResponse response) throws Exception {
-
-        System.out.println(user);
-        System.out.println(user.getUserId());
-        System.out.println(user.getPassword());
-
-        
-        try {
-        	System.out.println("BEFORE authentication");
-        	UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUserId(), user.getPassword());
-        	System.out.println(token);
-        	authenticationManager.authenticate(token);
-//            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUserId(), user.getPassword()));
-            System.out.println("authentication OK");
-        } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
-        }
-
-        final UserDetails userDetails = principalDetailService.loadUserByUsername(user.getUserId());
-        System.out.println(userDetails);
-        String accessToken = "";
-        String refreshToken = "";
-
-        accessToken = jwtTokenUtil.generateToken(userDetails, 1); // 유효 기간 : 1시간
-        System.out.println(accessToken);
-        refreshToken = jwtTokenUtil.generateToken(userDetails, 24 * 7); // 유효 기간 : 7일
-        System.out.println(refreshToken);
-
-        Cookie accessCookie = new Cookie("accessCookie", accessToken);
-        accessCookie.setMaxAge(60 * 60);
-        response.addCookie(accessCookie);
-
-
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-        refreshCookie.setMaxAge(60 * 60 * 24 * 7);
-        response.addCookie(refreshCookie);
-        System.out.println("리프레시 토큰 업데이트 전");
-        userService.updateRefreshToken(refreshToken, user.getUserId());
-        System.out.println("리프레시 토큰 업데이트 후");
-
-        // TODO 리턴값 변경
-        return "success";
+    public ResponseEntity<?> signIn(@RequestBody User user) {
+        return ResponseEntity.ok(userService.signIn(user));
     }
-    
-    @ResponseBody
+
     @PostMapping("/auth/refreshToken")
-    public String refreshToken(@RequestBody User user , HttpServletRequest request, HttpServletResponse response) throws Exception{
-
-    	final UserDetails userDetails = principalDetailService.loadUserByUsername(user.getUserId());
-    	
-        String accessToken = "";
-        String refreshToken = "";
-
-        // TODO refreshToken DB와 비교 로직 추가
-        
-        Cookie [] cookies = request.getCookies();
-        if(cookies != null && cookies.length > 0 ) {
-            for(Cookie cookie : cookies) {
-                if(cookie.getName().equals("refreshToken")) {
-                    refreshToken = cookie.getValue();
-                    if(jwtTokenUtil.checkClaim(refreshToken)) {
-                        accessToken = jwtTokenUtil.generateToken(userDetails, 60);
-                    }else {
-                        throw new InvalidRefreshTokenException();
-                    }
-                }
-            }
+    public ResponseEntity<?> refreshToken(@RequestBody User user) {
+        BaseResponseDTO responseDTO = userService.refreshToken(user);
+        if (responseDTO.getCode().equals("BD001") || responseDTO.getCode().equals("BD002")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
         }
-
-        if(refreshToken == null || "".equals(refreshToken)) {
-            throw new InvalidRefreshTokenException();
+        if (responseDTO.getCode().startsWith("ER")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDTO);
         }
-
-        // TODO refreshToken 재발급 로직
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(jwtTokenUtil.getExpirationDateFromToken(refreshToken));
-        calendar.add(Calendar.DATE, +1);
-        
-        // refreshToken 만료 하루 전 재발급 후 cookie에 담아 응답
-        if(calendar.getTime().compareTo(new Date()) == 0) { // refreshToken의 유효 날짜+1 == 현재 시간
-        	refreshToken = jwtTokenUtil.generateToken(userDetails, 60 * 24 * 7); // 유효 기간 : 7일
-        	Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-            
-        	refreshCookie.setMaxAge(60 * 60 * 24 * 7);
-            response.addCookie(refreshCookie);
-            userService.updateRefreshToken(refreshToken, user.getUserId());
-        }
-
-        Cookie accessCookie = new Cookie("accessCookie", accessToken);
-        
-        accessCookie.setMaxAge(60 * 60);
-        response.addCookie(accessCookie);
-        
-        return "success";
+        return ResponseEntity.ok(responseDTO);
     }
-    
-    
-    
-//    TODO 기존 accesstoken 재발급 로직 주석처리
-//    @PostMapping("/auth/refreshToken")
-//    public String refreshToken(@RequestBody User user , HttpServletRequest request, HttpServletResponse response) throws Exception{
-//
-//        String accessToken = "";
-//        String refreshToken = "";
-//
-//        Cookie [] cookies = request.getCookies();
-//        if(cookies != null && cookies.length > 0 ) {
-//            for(Cookie cookie : cookies) {
-//                if(cookie.getName().equals("refreshToken")) {
-//                    refreshToken = cookie.getValue();
-//                    if(jwtTokenUtil.checkClaim(refreshToken)) {
-//                        accessToken = jwtTokenUtil.generateToken(user.getUserId(), 60);
-//                    }else {
-//                        throw new InvalidRefreshTokenException();
-//                    }
-//                }
-//            }
-//        }
-//
-//        if(refreshToken == null || "".equals(refreshToken)) {
-//            throw new InvalidRefreshTokenException();
-//        }
-//
-//        // TODO refreshToken 재발급 로직
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(jwtTokenUtil.getExpirationDateFromToken(refreshToken));
-//        calendar.add(Calendar.DATE, +1);
-//        
-//        // refreshToken 만료 하루 전 재발급 후 cookie에 담아 응답
-//        if(calendar.getTime().compareTo(new Date()) == 0) { // refreshToken의 유효 날짜+1 == 현재 시간
-//        	refreshToken = jwtTokenUtil.generateToken(user.getUserId(), 60 * 24 * 7); // 유효 기간 : 7일
-//        	Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-//            
-//        	refreshCookie.setMaxAge(60 * 60 * 24 * 7);
-//            response.addCookie(refreshCookie);
-//            userService.updateRefreshToken(refreshToken, user.getUserId());
-//        }
-//
-//        Cookie accessCookie = new Cookie("accessCookie", accessToken);
-//        
-//        accessCookie.setMaxAge(60 * 60);
-//        response.addCookie(accessCookie);
-//        
-//        return "success";
-//    }
+
+    @GetMapping("/auth/memberInfo")
+    public ResponseEntity<?> memberInfo(@RequestParam String userId) {
+        // todo
+        return ResponseEntity.ok(userId);
+    }
 }
