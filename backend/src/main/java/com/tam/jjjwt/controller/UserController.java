@@ -104,22 +104,22 @@ public class UserController {
 
         Map<String, String> resultMap = new HashMap<>();
 
-        accessToken = jwtTokenUtil.generateToken(userDetails, 1); // 유효 기간 : 1시간
+        accessToken = jwtTokenUtil.generateToken(userDetails, 1); // 테스트 1분 , 유효 기간 : 1시간
         System.out.println(accessToken);
-        refreshToken = jwtTokenUtil.generateToken(userDetails, 24 * 7); // 유효 기간 : 7일
+        refreshToken = jwtTokenUtil.generateToken(userDetails, 3); // 테스트 3분, 유효 기간 : 7일
         System.out.println(refreshToken);
 
         resultMap.put("AccessToken",accessToken);
         resultMap.put("RefreshToken",refreshToken);
 
-        Cookie accessCookie = new Cookie("accessCookie", accessToken);
-        accessCookie.setMaxAge(60 * 60);
-        response.addCookie(accessCookie);
-
-
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-        refreshCookie.setMaxAge(60 * 60 * 24 * 7);
-        response.addCookie(refreshCookie);
+//        Cookie accessCookie = new Cookie("accessCookie", accessToken);
+//        accessCookie.setMaxAge(60 * 60);
+//        response.addCookie(accessCookie);
+//
+//
+//        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+//        refreshCookie.setMaxAge(60 * 60 * 24 * 7);
+//        response.addCookie(refreshCookie);
         userService.updateRefreshToken(refreshToken, user.getUserId());
 
 
