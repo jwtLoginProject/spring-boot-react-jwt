@@ -14,24 +14,25 @@ class AuthService {
     signIn = async (user) => {
         const tokenSet = await customAxios.post('/auth/signInProc', JSON.stringify(user));
         if(tokenSet) {
-            // accessToken 만료 기간 검증, 갱신
-            this.refreshTokensBeforeExpire(cookies.get('accessToken'), user);
+            console.log(tokenSet);
+            // // accessToken 만료 기간 검증, 갱신
+            // this.refreshTokensBeforeExpire(cookies.get('accessToken'), user);
             
-            // 쿠키 받아와서 프론트 쿠키에 저장
-            cookies.set('accessToken');
-            cookies.set('refreshToken');
+            // // 쿠키 받아와서 프론트 쿠키에 저장
+            // cookies.set('accessToken');
+            // cookies.set('refreshToken');
 
-            // 로그인 user 아이디 웹스토리지 저장
-            localStorage.setItem('AuthenticatedUser', user.userId);
+            // // 로그인 user 아이디 웹스토리지 저장
+            // localStorage.setItem('AuthenticatedUser', user.userId);
         }
 
-        // 쿠키에 저장된 토큰을 헤더에 저장
-        axios.interceptors.request.use(config => {
-            if (this.accessToken !== '') {
-                config.headers['accessToken'] = 'Bearer ' + this.accessToken;
-            }
-            return config;
-        });
+        // // 쿠키에 저장된 토큰을 헤더에 저장
+        // axios.interceptors.request.use(config => {
+        //     if (this.accessToken !== '') {
+        //         config.headers['accessToken'] = 'Bearer ' + this.accessToken;
+        //     }
+        //     return config;
+        // });
     }
     
     signUp = async (user) => {
