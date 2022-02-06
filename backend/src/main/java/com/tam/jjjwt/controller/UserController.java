@@ -104,9 +104,9 @@ public class UserController {
 
         Map<String, String> resultMap = new HashMap<>();
 
-        accessToken = jwtTokenUtil.generateToken(userDetails, 1); // 테스트 1분 , 유효 기간 : 1시간
+        accessToken = jwtTokenUtil.generateToken(userDetails, 40); // 테스트 40초 , 유효 기간 : 1시간
         System.out.println(accessToken);
-        refreshToken = jwtTokenUtil.generateToken(userDetails, 3); // 테스트 3분, 유효 기간 : 7일
+        refreshToken = jwtTokenUtil.generateToken(userDetails, 80); // 테스트 80초, 유효 기간 : 7일
         System.out.println(refreshToken);
 
         resultMap.put("AccessToken",accessToken);
@@ -134,6 +134,8 @@ public class UserController {
     @PostMapping("/auth/refreshToken")
     public String refreshToken(@RequestBody User user , HttpServletRequest request, HttpServletResponse response) throws Exception{
 
+        System.out.println("refreshToken 요청 받음");
+
     	final UserDetails userDetails = principalDetailService.loadUserByUsername(user.getUserId());
     	
         String accessToken = "";
@@ -147,7 +149,7 @@ public class UserController {
                 if(cookie.getName().equals("refreshToken")) {
                     refreshToken = cookie.getValue();
                     if(jwtTokenUtil.checkClaim(refreshToken)) {
-                        accessToken = jwtTokenUtil.generateToken(userDetails, 60);
+                        accessToken = jwtTokenUtil.generateToken(userDetails, 40);
                     }else {
                         throw new InvalidRefreshTokenException();
                     }
@@ -166,7 +168,7 @@ public class UserController {
         
         // refreshToken 만료 하루 전 재발급 후 cookie에 담아 응답
         if(calendar.getTime().compareTo(new Date()) == 0) { // refreshToken의 유효 날짜+1 == 현재 시간
-        	refreshToken = jwtTokenUtil.generateToken(userDetails, 60 * 24 * 7); // 유효 기간 : 7일
+        	refreshToken = jwtTokenUtil.generateToken(userDetails, 80); //테스트 1분// 유효 기간 : 7일
         	Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
             
         	refreshCookie.setMaxAge(60 * 60 * 24 * 7);

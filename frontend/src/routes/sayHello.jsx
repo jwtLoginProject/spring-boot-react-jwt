@@ -1,8 +1,10 @@
 import React from 'react';
 
-const SayHello = ({getCurrentUser}) => {
+const SayHello = ({access, refresh, getCurrentUser, getAccess, getRefresh, user}) => {
     const currentUser = getCurrentUser();
-
+    getAccess(access, user);
+    getRefresh(refresh, user);
+    
     return (
         <>
         {currentUser ?
