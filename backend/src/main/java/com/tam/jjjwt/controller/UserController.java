@@ -25,6 +25,7 @@ import com.tam.jjjwt.config.PrincipalDetail;
 import com.tam.jjjwt.config.PrincipalDetailService;
 import com.tam.jjjwt.response.exception.InvalidRefreshTokenException;
 import com.tam.jjjwt.service.UserService;
+import sun.applet.resources.MsgAppletViewer;
 
 
 /**
@@ -132,7 +133,7 @@ public class UserController {
     
     @ResponseBody
     @PostMapping("/auth/refreshToken")
-    public String refreshToken(@RequestBody User user , HttpServletRequest request, HttpServletResponse response) throws Exception{
+    public Map<String, String> refreshToken(@RequestBody User user , HttpServletRequest request, HttpServletResponse response) throws Exception{
 
         System.out.println("refreshToken 요청 받음");
 
@@ -141,7 +142,6 @@ public class UserController {
         String accessToken = "";
         String refreshToken = "";
 
-        // TODO refreshToken DB와 비교 로직 추가
         
         Cookie [] cookies = request.getCookies();
         if(cookies != null && cookies.length > 0 ) {
@@ -161,27 +161,24 @@ public class UserController {
             throw new InvalidRefreshTokenException();
         }
 
-        // TODO refreshToken 재발급 로직
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(jwtTokenUtil.getExpirationDateFromToken(refreshToken));
-        calendar.add(Calendar.DATE, +1);
-        
-        // refreshToken 만료 하루 전 재발급 후 cookie에 담아 응답
-        if(calendar.getTime().compareTo(new Date()) == 0) { // refreshToken의 유효 날짜+1 == 현재 시간
+        calendar.add(Calendar.SECOND, -20);
+//      calendar.add(Calendar.DATE, +1);
+
+        Map<String, String> resultMap = new HashMap<>();
+
+        // refreshToken 만료 하루 전 재발급
+        if(calendar.getTime().compareTo(new Date()) == 0) { // refreshToken의 유효 날짜-1 == 현재 시간
         	refreshToken = jwtTokenUtil.generateToken(userDetails, 80); //테스트 1분// 유효 기간 : 7일
-        	Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-            
-        	refreshCookie.setMaxAge(60 * 60 * 24 * 7);
-            response.addCookie(refreshCookie);
+
             userService.updateRefreshToken(refreshToken, user.getUserId());
+            resultMap.put("RefreshToken", refreshToken);
         }
 
-        Cookie accessCookie = new Cookie("accessCookie", accessToken);
-        
-        accessCookie.setMaxAge(60 * 60);
-        response.addCookie(accessCookie);
-        
-        return "success";
+        resultMap.put("AccessToken", accessToken);
+
+        return resultMap;
     }
     
     
