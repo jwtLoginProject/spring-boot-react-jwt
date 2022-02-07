@@ -137,28 +137,37 @@ public class UserController {
     @PostMapping("/auth/refreshToken")
     public Map<String, String> refreshToken(@RequestBody User user , HttpServletRequest request, HttpServletResponse response) throws Exception{
 
-        System.out.println("refreshToken 요청 받음");
+        System.out.println("/refreshToken 요청 받음");
 
     	final UserDetails userDetails = principalDetailService.loadUserByUsername(user.getUserId());
     	
         String accessToken = "";
         String refreshToken = "";
 
-        
-        Cookie [] cookies = request.getCookies();
-        if(cookies != null && cookies.length > 0 ) {
-            for(Cookie cookie : cookies) {
-                if(cookie.getName().equals("refreshToken")) {
-                    refreshToken = cookie.getValue();
-                    if(jwtTokenUtil.checkClaim(refreshToken)) {
-                        System.out.println("JWT parsing failed");
-                        accessToken = jwtTokenUtil.generateToken(userDetails, 40);
-                    }else {
+        if(user.getRefreshToken() != null) {
+            refreshToken = user.getRefreshToken();
+            System.out.println("refreshToken : " + refreshToken);
+
+            if(jwtTokenUtil.checkClaim(refreshToken)) {
+                accessToken = jwtTokenUtil.generateToken(userDetails, 40);
+            }else {
                         throw new InvalidRefreshTokenException();
                     }
-                }
-            }
         }
+        
+//        Cookie [] cookies = request.getCookies();
+//        if(cookies != null && cookies.length > 0 ) {
+//            for(Cookie cookie : cookies) {
+//                if(cookie.getName().equals("refreshToken")) {
+//                    refreshToken = cookie.getValue();
+//                    if(jwtTokenUtil.checkClaim(refreshToken)) {
+//                        accessToken = jwtTokenUtil.generateToken(userDetails, 40);
+//                    }else {
+//                        throw new InvalidRefreshTokenException();
+//                    }
+//                }
+//            }
+//        }
 
         if(refreshToken == null || "".equals(refreshToken)) {
             System.out.println("RefreshToken not found");
