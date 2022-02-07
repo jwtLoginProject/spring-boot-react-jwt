@@ -9,22 +9,22 @@ import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 
 const App = () => {
-  const [cookies, setCookie, removeCookie] = useCookies(['accessToken', 'refreshToken']);
+  const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
 
   const signIn = async (user) => {
     try {
       const tokenSet = await customAxios.post('/auth/signInProc', JSON.stringify(user));
       // // 쿠키 받아와서 프론트 쿠키에 저장
       setCookie('accessToken', tokenSet.data.AccessToken);
-      setCookie('refreshToken', tokenSet.data.RefreshToken);
-      // // 로그인 user 아이디 웹스토리지 저장
+      
+      // // 로그인 user 아이디, refreshToken 웹스토리지 저장
       localStorage.setItem('AuthenticatedUser', user.userId);
+      localStorage.setItem('refreshToken', tokenSet.data.RefreshToken);
+
       window.location.href = '/hello';
     } catch {
 
-    }   
     }
-
     // 쿠키에 저장된 토큰을 헤더에 저장
     axios.interceptors.request.use(config => {
         if (cookies.accessToken) {
@@ -33,6 +33,7 @@ const App = () => {
         return config;
     });
   }
+  
 
   const signUp = async (user) => {
       const data = await customAxios.post('/auth/signUpProc', JSON.stringify(user));
@@ -40,9 +41,10 @@ const App = () => {
   }
 
   const signOut = () => {
-      // 쿠키에서 토큰 제거?
-      removeCookie('refreshToken');
+      // 쿠키에서 토큰 제거
       removeCookie('accessToken');
+      // 웹스토리지 토큰 제거
+      localStorage.removeItem('refreshToken');
       // 로그인 user 아이디 웹스토리지에서 제거
       localStorage.removeItem('AuthenticatedUser');
   }
@@ -50,50 +52,52 @@ const App = () => {
   const getCurrentUser = () => {
       return cookies.accessToken !== '' && localStorage.getItem('AuthenticatedUser');
   }
+  
+
+  const getNewAccessTokenBeforeExpire = async (token, user) => {
+    const currTime = Date.now()/1000;
+    const { exp } = jwt_decode(token);
+    let newUser = user;
+    if(exp < currTime + 1000 * 10) {
+        newUser['refreshToken'] = 'Bearer ' + localStorage.getItem('refreshToken');
+        axios.interceptors.request.use(config => {
+            config.headers['accessToken'] = 'Bearer ' + cookies.accessToken;
+            return config;
+          });
+
+          // 토큰 갱신
+          const newTokenSet = await customAxios.post('/auth/refreshToken', JSON.stringify(newUser));
+          if(newTokenSet.data.RefreshToken) {
+            setCookie('accessToken', newTokenSet.data.AccessToken);
+            localStorage.setItem('refreshToken', newTokenSet.data.RefreshToken);
+          }else{
+            setCookie('accessToken', newTokenSet.data.AccessToken);
+          }
+        }
+    }
 
 
   const getNewRefreshTokenBeforeExpire = async (token, user) => {
       const currTime = Date.now()/1000;
       const { exp } = jwt_decode(token);
+      let newUser = user;
 
-      if(exp < currTime + 1000 * 10) {
+      if(exp < currTime + 1000 * 30) {
+          newUser['refreshToken'] = 'Bearer ' + localStorage.getItem('refreshToken');
           axios.interceptors.request.use(config => {
               config.headers['accessToken'] = 'Bearer ' + cookies.accessToken;
-              config.headers['refreshToken'] = 'Bearer ' + cookies.refreshToken;
               return config;
             });
 
             // 토큰 갱신
-            const newTokenSet = await customAxios.post('/auth/refreshToken', JSON.stringify(user));
+            const newTokenSet = await customAxios.post('/auth/refreshToken', JSON.stringify(newUser));
             if(newTokenSet.data.RefreshToken) {
-              setCookie('accessToken', cookies.accessToken);
-              setCookie('refreshToken', cookies.refreshToken);
+              setCookie('accessToken', newTokenSet.data.AccessToken);
+              localStorage.setItem('refreshToken', newTokenSet.data.RefreshToken);
             }else{
-              setCookie('accessToken', cookies.accessToken);
+              setCookie('accessToken', newTokenSet.data.AccessToken);
             }
           }
-    }
-
-  const getNewAccessTokenBeforeExpire = async (token, user) => {
-      const currTime = Date.now()/1000;
-      const { exp } = jwt_decode(token);
-
-      if(exp < currTime + 1000 * 30) {
-          axios.interceptors.request.use(config => {
-            config.headers['accessToken'] = 'Bearer ' + cookies.accessToken;
-            config.headers['refreshToken'] = 'Bearer ' + cookies.refreshToken;
-            return config;
-        });
-
-        // 토큰 갱신
-        const newTokenSet = await customAxios.post('/auth/refreshToken', JSON.stringify(user));
-        if(newTokenSet.data.RefreshToken) {
-          setCookie('accessToken', cookies.accessToken);
-          setCookie('refreshToken', cookies.refreshToken);
-        }else{
-          setCookie('accessToken', cookies.accessToken);
-        }
-      }
     }
 
     return (
