@@ -61,7 +61,7 @@ const App = () => {
     if(exp < currTime + 1000 * 10) {
         newUser['refreshToken'] = 'Bearer ' + localStorage.getItem('refreshToken');
         axios.interceptors.request.use(config => {
-            config.headers['accessToken'] = 'Bearer ' + cookies.accessToken;
+            config.headers['accessToken'] = 'Bearer ' + token;
             return config;
           });
 
@@ -83,7 +83,7 @@ const App = () => {
       let newUser = user;
 
       if(exp < currTime + 1000 * 30) {
-          newUser['refreshToken'] = 'Bearer ' + localStorage.getItem('refreshToken');
+          newUser['refreshToken'] = 'Bearer ' + token;
           axios.interceptors.request.use(config => {
               config.headers['accessToken'] = 'Bearer ' + cookies.accessToken;
               return config;
@@ -117,7 +117,7 @@ const App = () => {
           <Route path="/hello" element={<SayHello
           getCurrentUser={getCurrentUser}
           access={cookies.accessToken}
-          refresh={cookies.refreshToken}
+          refresh={localStorage.getItem('refreshToken')}
           getAccess={getNewAccessTokenBeforeExpire}
           getRefresh={getNewRefreshTokenBeforeExpire}
           />} />
