@@ -78,7 +78,7 @@ public class UserController {
     
     @ResponseBody
     @PostMapping("/auth/signInProc")
-    public Map<String, String> signIn(@RequestBody User user , HttpServletResponse response) throws Exception {
+    public Map<String, ?> signIn(@RequestBody User user , HttpServletResponse response) throws Exception {
 
         System.out.println(user);
         System.out.println(user.getUserId());
@@ -112,6 +112,8 @@ public class UserController {
 
         resultMap.put("AccessToken",accessToken);
         resultMap.put("RefreshToken",refreshToken);
+        resultMap.put("grantType", "Bearer ");
+//        resultMap.put("refreshTokenExpirationTime", jwtTokenUtil.getExpirationDateFromToken(refreshToken));
 
 //        Cookie accessCookie = new Cookie("accessCookie", accessToken);
 //        accessCookie.setMaxAge(60 * 60);
@@ -149,6 +151,7 @@ public class UserController {
                 if(cookie.getName().equals("refreshToken")) {
                     refreshToken = cookie.getValue();
                     if(jwtTokenUtil.checkClaim(refreshToken)) {
+                        System.out.println("JWT parsing failed");
                         accessToken = jwtTokenUtil.generateToken(userDetails, 40);
                     }else {
                         throw new InvalidRefreshTokenException();
@@ -158,6 +161,7 @@ public class UserController {
         }
 
         if(refreshToken == null || "".equals(refreshToken)) {
+            System.out.println("RefreshToken not found");
             throw new InvalidRefreshTokenException();
         }
 
@@ -169,14 +173,16 @@ public class UserController {
         Map<String, String> resultMap = new HashMap<>();
 
         // refreshToken 만료 하루 전 재발급
-        if(calendar.getTime().compareTo(new Date()) == 0) { // refreshToken의 유효 날짜-1 == 현재 시간
+        if(calendar.getTime().compareTo(new Date()) == -1) { // refreshToken의 유효 날짜-1 == 현재 시간
         	refreshToken = jwtTokenUtil.generateToken(userDetails, 80); //테스트 1분// 유효 기간 : 7일
 
             userService.updateRefreshToken(refreshToken, user.getUserId());
             resultMap.put("RefreshToken", refreshToken);
+
         }
 
         resultMap.put("AccessToken", accessToken);
+        resultMap.put("grantType", "Bearer ");
 
         return resultMap;
     }
