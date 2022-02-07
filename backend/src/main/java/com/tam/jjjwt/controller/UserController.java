@@ -169,7 +169,7 @@ public class UserController {
         Map<String, String> resultMap = new HashMap<>();
 
         // refreshToken 만료 하루 전 재발급
-        if(calendar.getTime().compareTo(new Date()) == 0) { // refreshToken의 유효 날짜-1 == 현재 시간
+        if(calendar.getTime().compareTo(new Date()) == -1) { // refreshToken의 유효 날짜-1 == 현재 시간
         	refreshToken = jwtTokenUtil.generateToken(userDetails, 80); //테스트 1분// 유효 기간 : 7일
 
             userService.updateRefreshToken(refreshToken, user.getUserId());

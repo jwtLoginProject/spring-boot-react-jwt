@@ -12,14 +12,17 @@ const App = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['accessToken', 'refreshToken']);
 
   const signIn = async (user) => {
-    const tokenSet = await customAxios.post('/auth/signInProc', JSON.stringify(user));
-    if(tokenSet) {
-        // // 쿠키 받아와서 프론트 쿠키에 저장
-        setCookie('accessToken', tokenSet.data.AccessToken);
-        setCookie('refreshToken', tokenSet.data.RefreshToken);
-        // // 로그인 user 아이디 웹스토리지 저장
-        localStorage.setItem('AuthenticatedUser', user.userId);
-        window.location.href = '/hello';
+    try {
+      const tokenSet = await customAxios.post('/auth/signInProc', JSON.stringify(user));
+      // // 쿠키 받아와서 프론트 쿠키에 저장
+      setCookie('accessToken', tokenSet.data.AccessToken);
+      setCookie('refreshToken', tokenSet.data.RefreshToken);
+      // // 로그인 user 아이디 웹스토리지 저장
+      localStorage.setItem('AuthenticatedUser', user.userId);
+      window.location.href = '/hello';
+    } catch {
+
+    }   
     }
 
     // 쿠키에 저장된 토큰을 헤더에 저장
