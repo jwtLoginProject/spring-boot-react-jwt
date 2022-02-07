@@ -1,10 +1,12 @@
 import React from 'react';
 
-const SayHello = ({access, refresh, getCurrentUser, getAccess, getRefresh, user}) => {
+const SayHello = ({access, refresh, getCurrentUser, getAccess, getRefresh}) => {
     const currentUser = getCurrentUser();
-    getAccess(access, user);
-    getRefresh(refresh, user);
-    
+    const user = localStorage.getItem('user');
+
+    getAccess(access, JSON.parse(user));
+    getRefresh(refresh, JSON.parse(user));
+
     return (
         <>
         {currentUser ?

@@ -7,11 +7,9 @@ import SayHello from './routes/sayHello';
 import { customAxios } from './service/customAxios';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
-import { useState } from 'react';
 
 const App = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['accessToken', 'refreshToken']);
-  const [user, setUser] = useState();
 
   const signIn = async (user) => {
     const tokenSet = await customAxios.post('/auth/signInProc', JSON.stringify(user));
@@ -22,7 +20,6 @@ const App = () => {
         // // 로그인 user 아이디 웹스토리지 저장
         localStorage.setItem('AuthenticatedUser', user.userId);
         window.location.href = '/hello';
-        setUser(user);
     }
 
     // 쿠키에 저장된 토큰을 헤더에 저장
@@ -48,15 +45,15 @@ const App = () => {
   }
 
   const getCurrentUser = () => {
-      getNewAccessTokenBeforeExpire(cookies.accessToken, user);
-      getNewRefreshTokenBeforeExpire(cookies.refreshToken, user);
       return cookies.accessToken !== '' && localStorage.getItem('AuthenticatedUser');
   }
 
 
   const getNewRefreshTokenBeforeExpire = async (token, user) => {
+      const currTime = Date.now()/1000;
       const { exp } = jwt_decode(token);
-      if(exp < 1000 * 10) {
+
+      if(exp < currTime + 1000 * 10) {
           axios.interceptors.request.use(config => {
               config.headers['accessToken'] = 'Bearer ' + cookies.accessToken;
               config.headers['refreshToken'] = 'Bearer ' + cookies.refreshToken;
@@ -75,22 +72,24 @@ const App = () => {
     }
 
   const getNewAccessTokenBeforeExpire = async (token, user) => {
+      const currTime = Date.now()/1000;
       const { exp } = jwt_decode(token);
-      if(exp < 1000 * 30) {
+
+      if(exp < currTime + 1000 * 30) {
           axios.interceptors.request.use(config => {
             config.headers['accessToken'] = 'Bearer ' + cookies.accessToken;
             config.headers['refreshToken'] = 'Bearer ' + cookies.refreshToken;
             return config;
         });
 
-      // 토큰 갱신
-      const newTokenSet = await customAxios.post('/auth/refreshToken', JSON.stringify(user));
-      if(newTokenSet.data.RefreshToken) {
-        setCookie('accessToken', cookies.accessToken);
-        setCookie('refreshToken', cookies.refreshToken);
-      }else{
-        setCookie('accessToken', cookies.accessToken);
-      }
+        // 토큰 갱신
+        const newTokenSet = await customAxios.post('/auth/refreshToken', JSON.stringify(user));
+        if(newTokenSet.data.RefreshToken) {
+          setCookie('accessToken', cookies.accessToken);
+          setCookie('refreshToken', cookies.refreshToken);
+        }else{
+          setCookie('accessToken', cookies.accessToken);
+        }
       }
     }
 
@@ -110,7 +109,6 @@ const App = () => {
           />} />
           <Route path="/hello" element={<SayHello
           getCurrentUser={getCurrentUser}
-          user={user}
           access={cookies.accessToken}
           refresh={cookies.refreshToken}
           getAccess={getNewAccessTokenBeforeExpire}

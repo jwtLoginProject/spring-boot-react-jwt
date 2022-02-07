@@ -10,6 +10,7 @@ const Login = ({getCurrentUser, signIn}) => {
 
     const handleLogin = (user) => {
         signIn(user);
+        localStorage.setItem('user', JSON.stringify(user));
     }
 
     return (
