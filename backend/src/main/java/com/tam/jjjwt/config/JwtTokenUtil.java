@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 public class JwtTokenUtil implements Serializable{
 
 	private static final long serialVersionUID = -3087900894366041265L;
-	public static final long tokenValidTime = 60 * 60 * 1000;
+	public static final long tokenValidTime = 1000;
 
 	@Value("${security.jwt.token.secret-key}")
 	private String secretKey;

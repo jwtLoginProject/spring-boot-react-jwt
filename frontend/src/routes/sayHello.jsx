@@ -1,12 +1,11 @@
-import React from 'react';
 
-const SayHello = ({getCurrentUser}) => {
-    const currentUser = getCurrentUser();
+const SayHello = ({authUser}) => {
+    const userId = localStorage.getItem('userId') || null;
 
     return (
         <>
-        {currentUser ?
-            <h1>Hello, {currentUser}</h1>
+        { authUser ?
+            <h1>Hello, {userId}</h1>
         :   window.location.href = '/'
         }
         </>

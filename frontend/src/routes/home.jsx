@@ -1,15 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const Home = ({getCurrentUser, signOut}) => {
-    const currentUser = getCurrentUser();
-    
+const Home = ({signOut, authUser}) => {
     return (
         <>
         <Link to='/join'>        
             <button>Join</button>
         </Link>
-        {currentUser ? 
+        {authUser ? 
         <button onClick={()=>signOut()}>Logout</button>
         :
         <Link to='/login'>
