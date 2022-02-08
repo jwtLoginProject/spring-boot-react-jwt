@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 
-const Login = ({getCurrentUser, signIn}) => {
-    const currentUser = getCurrentUser();
-
+const Login = ({signIn, authUser}) => {
     const [formData, setFormData] = useState({
         userId: '',
         password: ''
@@ -10,13 +8,12 @@ const Login = ({getCurrentUser, signIn}) => {
 
     const handleLogin = (user) => {
         signIn(user);
-        localStorage.setItem('user', JSON.stringify(user));
     }
 
     return (
         <>
         {
-            currentUser ? 
+            authUser ? 
             window.location.href = '/' :
             <>
             <form>

@@ -1,129 +1,72 @@
-import { useCookies } from 'react-cookie';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Home from '../src/routes/home';
 import Join from './routes/join';
 import Login from './routes/login';
 import SayHello from './routes/sayHello';
 import { customAxios } from './service/customAxios';
-import axios from 'axios';
+import { useState } from 'react';
 import jwt_decode from 'jwt-decode';
 
 const App = () => {
-  const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
+  const isLoggedIn = () => {
+    return localStorage.getItem('accessToken') ? true : false;
+  }
+  const [authUser, setAuthUser] = useState(isLoggedIn);
 
   const signIn = async (user) => {
     try {
       const tokenSet = await customAxios.post('/auth/signInProc', JSON.stringify(user));
-      // // 쿠키 받아와서 프론트 쿠키에 저장
-      setCookie('accessToken', tokenSet.data.AccessToken);
-      
-      // // 로그인 user 아이디, refreshToken 웹스토리지 저장
-      localStorage.setItem('AuthenticatedUser', user.userId);
+      // 토큰 받아와서 localStorage 저장
+      localStorage.setItem('accessToken', tokenSet.data.AccessToken);
       localStorage.setItem('refreshToken', tokenSet.data.RefreshToken);
+      
+      // userId localStorage 저장
+      localStorage.setItem('userId', user.userId);
+      
+      setAuthUser(()=>isLoggedIn());
 
       window.location.href = '/hello';
-    } catch {
 
+    } catch(error) {
+      console.log(error);
+      window.alert(error);
     }
-    // 쿠키에 저장된 토큰을 헤더에 저장
-    axios.interceptors.request.use(config => {
-        if (cookies.accessToken) {
-            config.headers['accessToken'] = 'Bearer ' + cookies.accessToken;
-        }
-        return config;
-    });
   }
-  
 
   const signUp = async (user) => {
       const data = await customAxios.post('/auth/signUpProc', JSON.stringify(user));
+      window.alert('회원가입이 완료되었습니다 👏');
       return data;
   }
 
   const signOut = () => {
-      // 쿠키에서 토큰 제거
-      removeCookie('accessToken');
-      // 웹스토리지 토큰 제거
+      // localStorage 토큰 제거
+      localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
-      // 로그인 user 아이디 웹스토리지에서 제거
-      localStorage.removeItem('AuthenticatedUser');
+      // localStorage userId 제거
+      localStorage.removeItem('userId');
   }
 
-  const getCurrentUser = () => {
-      return cookies.accessToken !== '' && localStorage.getItem('AuthenticatedUser');
-  }
-  
-
-  const getNewAccessTokenBeforeExpire = async (token, user) => {
-    const currTime = Date.now()/1000;
-    const { exp } = jwt_decode(token);
-    let newUser = user;
-    if(exp < currTime + 1000 * 10) {
-        newUser['refreshToken'] = 'Bearer ' + localStorage.getItem('refreshToken');
-        axios.interceptors.request.use(config => {
-            config.headers['accessToken'] = 'Bearer ' + token;
-            return config;
-          });
-
-          // 토큰 갱신
-          const newTokenSet = await customAxios.post('/auth/refreshToken', JSON.stringify(newUser));
-          if(newTokenSet.data.RefreshToken) {
-            setCookie('accessToken', newTokenSet.data.AccessToken);
-            localStorage.setItem('refreshToken', newTokenSet.data.RefreshToken);
-          }else{
-            setCookie('accessToken', newTokenSet.data.AccessToken);
-          }
-        }
-    }
-
-
-  const getNewRefreshTokenBeforeExpire = async (token, user) => {
-      const currTime = Date.now()/1000;
-      const { exp } = jwt_decode(token);
-      let newUser = user;
-
-      if(exp < currTime + 1000 * 30) {
-          newUser['refreshToken'] = 'Bearer ' + token;
-          axios.interceptors.request.use(config => {
-              config.headers['accessToken'] = 'Bearer ' + cookies.accessToken;
-              return config;
-            });
-
-            // 토큰 갱신
-            const newTokenSet = await customAxios.post('/auth/refreshToken', JSON.stringify(newUser));
-            if(newTokenSet.data.RefreshToken) {
-              setCookie('accessToken', newTokenSet.data.AccessToken);
-              localStorage.setItem('refreshToken', newTokenSet.data.RefreshToken);
-            }else{
-              setCookie('accessToken', newTokenSet.data.AccessToken);
-            }
-          }
-    }
-
-    return (
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home
-          getCurrentUser={getCurrentUser}
-          signOut={signOut}
-          />} />
-          <Route path="/join" element={<Join
-          signUp={signUp}
-          />} />
-          <Route path="/login" element={<Login
-          getCurrentUser={getCurrentUser}
-          signIn={signIn}
-          />} />
-          <Route path="/hello" element={<SayHello
-          getCurrentUser={getCurrentUser}
-          access={cookies.accessToken}
-          refresh={localStorage.getItem('refreshToken')}
-          getAccess={getNewAccessTokenBeforeExpire}
-          getRefresh={getNewRefreshTokenBeforeExpire}
-          />} />
-        </Routes>
-      </BrowserRouter>
-    );
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home
+        signOut={signOut}
+        authUser={authUser}
+        />} />
+        <Route path="/join" element={<Join
+        signUp={signUp}
+        />} />
+        <Route path="/login" element={<Login
+        signIn={signIn}
+        authUser={authUser}
+        />} />
+        <Route path="/hello" element={<SayHello
+        authUser={authUser}
+        />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
