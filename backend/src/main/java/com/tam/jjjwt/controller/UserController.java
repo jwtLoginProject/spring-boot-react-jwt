@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,11 +20,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.tam.jjjwt.config.JwtTokenUtil;
-import com.tam.jjjwt.config.PrincipalDetail;
 import com.tam.jjjwt.config.PrincipalDetailService;
 import com.tam.jjjwt.response.exception.InvalidRefreshTokenException;
 import com.tam.jjjwt.service.UserService;
-import sun.applet.resources.MsgAppletViewer;
 
 
 /**
